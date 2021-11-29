@@ -55,6 +55,8 @@ def main():
 
     args = parser.parse_args()
 
+    uploads = mixcloud_uploads(user=args.user, interval_seconds=args.interval)
+
     try:
         twitter_auth.consumer_key
     except:
@@ -93,9 +95,6 @@ def main():
             f'access_token = {auth.access_token}',
             f'access_token_secret = {auth.access_token_secret}'
         ])
-
-
-    uploads = mixcloud_uploads(user=args.user, interval_seconds=args.interval)
 
     print("Found " + str(len(uploads)) + " uploads")
 
