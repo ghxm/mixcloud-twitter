@@ -54,6 +54,8 @@ def main():
                     type=str)
 
     args = parser.parse_args()
+    
+    args.text = args.text.replace('\\n', '\n')
 
     uploads = mixcloud_uploads(user=args.user, interval_seconds=args.interval)
 
