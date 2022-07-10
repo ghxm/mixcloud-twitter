@@ -36,7 +36,7 @@ def tweet(text, upload):
     try:
         if api.update_status (text):
             text + '\n' + ("Tweet posted")
-    except tweepy.error.TweepError as e:
+    except tweepy.errors.TweepError as e:
         raise e
 
 
