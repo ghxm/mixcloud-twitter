@@ -1,9 +1,10 @@
 import requests
 import datetime
 from dateutil.relativedelta import relativedelta
-import twitter_auth
+#import twitter_auth
 import tweepy
 import argparse
+import sqlite3
 
 
 def mixcloud_uploads(user, interval_seconds):
@@ -12,7 +13,7 @@ def mixcloud_uploads(user, interval_seconds):
     then = now - relativedelta(seconds=interval_seconds)
     then_timestamp = then.strftime("%Y-%m-%d %H:%M:%S")
 
-    feed = requests.get(f'https://api.mixcloud.com/{user}/feed?since="{then_timestamp}"', params={'since': then_timestamp})
+    feed = requests.get(f'https://api.mixcloud.com/{user}/feed/"')
 
     feed_dict = feed.json()
 
@@ -38,12 +39,18 @@ def tweet(text, upload):
         if api.update_status (text):
             text + '\n' + ("Tweet posted")
     except tweepy.error.TweepError as e:
-        text + '\n' + ("Tweet not posted:\n" + str(e))
-
+        raise e
 
 
 
 def main():
+
+    # connect to db
+    conn = sqlite3.connect('mixcloud.sqlite3', isolation_level=None)
+    cur = conn.cursor()
+
+    # create table if it doesn't exist
+    cur.execute('CREATE TABLE IF NOT EXISTS uploads (slug TEXT, timestamp TEXT, tweeted INT)')
 
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--user", help="Mixcloud username",
@@ -54,8 +61,9 @@ def main():
                     type=str)
 
     args = parser.parse_args()
-    
+
     args.text = args.text.replace('\\n', '\n')
+
 
     uploads = mixcloud_uploads(user=args.user, interval_seconds=args.interval)
 
@@ -102,10 +110,25 @@ def main():
 
     for u in uploads:
 
-        print('Tweeting about ' + u['name'] + '...')
+        # check if slug in db
+        cur.execute('SELECT * FROM uploads WHERE slug = ? AND tweeted=1', (u['slug'],))
+        row = cur.fetchall()
 
-        tweet(text=args.text, upload=u)
+        if len(row) == 0:
 
+            print('Tweeting about ' + u['name'] + '...')
+
+            try:
+                tweet(text=args.text, upload=u)
+
+                # add to db
+                cur.execute('INSERT INTO uploads (slug, timestamp, tweeted) VALUES (?, ?, ?)', (u['slug'], u['created_time'], int(1)))
+            except Exception as e:
+                print(e)
+                print('Error tweeting about ' + u['name'])
+                continue
+
+        conn.commit()
 
 if __name__ == "__main__":
     main()
