@@ -122,12 +122,12 @@ def main():
 
                 # add to db
                 cur.execute('INSERT INTO uploads (slug, timestamp, tweeted) VALUES (?, ?, ?)', (u['slug'], u['created_time'], int(1)))
+                conn.commit()
             except Exception as e:
                 print(e)
                 print('Error tweeting about ' + u['name'])
                 continue
 
-        conn.commit()
 
 if __name__ == "__main__":
     main()
