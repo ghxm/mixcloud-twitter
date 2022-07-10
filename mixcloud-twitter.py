@@ -1,6 +1,6 @@
 import requests
 import datetime
-#import twitter_auth
+import twitter_auth
 import tweepy
 import argparse
 import sqlite3
@@ -8,11 +8,14 @@ import sqlite3
 
 def mixcloud_uploads(user, interval_seconds):
 
-    feed = requests.get(f'https://api.mixcloud.com/{user}/feed/"')
+    feed = requests.get(f'https://api.mixcloud.com/{user}/feed/?limit=50')
 
     feed_dict = feed.json()
 
-    uploads = [d['cloudcasts'][0] for d in feed_dict['data']]
+    uploads = [d['cloudcasts'][0] for d in feed_dict['data'] if 'cloudcasts' in d.keys()]
+
+    # sort by descending timestamp
+    uploads = sorted(uploads, key=lambda k: k['created_time'], reverse=True)
 
     return uploads
 
@@ -53,11 +56,12 @@ def main():
     parser.add_argument("-i", "--interval", help="Uploads since (seconds)",
                     type=int)
     parser.add_argument("-t", "--text", help="Tweet text. Use {name} and {url} to include upload name and url",
-                    type=str)
+                    type=str, default = "Oi, just uploaded {name} to Mixcloud! \n {url}")
 
     args = parser.parse_args()
 
     args.text = args.text.replace('\\n', '\n')
+
 
 
     uploads = mixcloud_uploads(user=args.user, interval_seconds=args.interval)
