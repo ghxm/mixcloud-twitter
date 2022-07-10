@@ -4,6 +4,8 @@ import twitter_auth
 import tweepy
 import argparse
 import sqlite3
+import glob
+import os
 
 
 def mixcloud_uploads(user, interval_seconds):
@@ -44,7 +46,7 @@ def tweet(text, upload):
 def main():
 
     # connect to db
-    conn = sqlite3.connect('mixcloud.sqlite3', isolation_level=None)
+    conn = sqlite3.connect(glob.glob(os.path.dirname(os.path.abspath(__file__)) + '/mixcloud.sqlite3')[0], isolation_level=None)
     cur = conn.cursor()
 
     # create table if it doesn't exist
