@@ -1,6 +1,5 @@
 import requests
 import datetime
-from dateutil.relativedelta import relativedelta
 #import twitter_auth
 import tweepy
 import argparse
@@ -8,10 +7,6 @@ import sqlite3
 
 
 def mixcloud_uploads(user, interval_seconds):
-
-    now = datetime.datetime.utcnow()
-    then = now - relativedelta(seconds=interval_seconds)
-    then_timestamp = then.strftime("%Y-%m-%d %H:%M:%S")
 
     feed = requests.get(f'https://api.mixcloud.com/{user}/feed/"')
 
