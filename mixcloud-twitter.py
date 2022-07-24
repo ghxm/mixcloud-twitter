@@ -8,7 +8,7 @@ import glob
 import os
 
 
-def mixcloud_uploads(user, interval_seconds):
+def mixcloud_uploads(user):
 
     feed = requests.get(f'https://api.mixcloud.com/{user}/feed/?limit=50')
 
@@ -55,7 +55,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-u", "--user", help="Mixcloud username",
                     type=str)
-    parser.add_argument("-i", "--interval", help="Uploads since (seconds)",
+    parser.add_argument("-i", "--interval", help="DEPRECATED: Uploads since (seconds)",
                     type=int)
     parser.add_argument("-t", "--text", help="Tweet text. Use {name} and {url} to include upload name and url",
                     type=str, default = "Oi, just uploaded {name} to Mixcloud! \n {url}")
@@ -66,7 +66,7 @@ def main():
 
 
 
-    uploads = mixcloud_uploads(user=args.user, interval_seconds=args.interval)
+    uploads = mixcloud_uploads(user=args.user)
 
     try:
         twitter_auth.consumer_key
