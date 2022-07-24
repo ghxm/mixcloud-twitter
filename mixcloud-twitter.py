@@ -14,7 +14,7 @@ def mixcloud_uploads(user, interval_seconds):
 
     feed_dict = feed.json()
 
-    uploads = [d['cloudcasts'][0] for d in feed_dict['data'] if 'cloudcasts' in d.keys()]
+    uploads = [d['cloudcasts'][0] for d in feed_dict['data'] if 'cloudcasts' in d.keys() and d['type'] == 'upload']
 
     # sort by descending timestamp
     uploads = sorted(uploads, key=lambda k: k['created_time'], reverse=True)
